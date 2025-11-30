@@ -1,4 +1,4 @@
-#!/usr/-bin/env python3
+#!/usr/bin/env python3
 
 import os
 import json
@@ -8,13 +8,12 @@ import httpx
 import uvicorn
 from dotenv import load_dotenv
 from fastapi import FastAPI, HTTPException, Query, Request
-from fastapi.responses import FileResponse, JSONResponse, Response, StreamingResponse
+from fastapi.responses import FileResponse, JSONResponse, Response
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from asyncio import gather
 
-app = FastAPI(title="HiFi-RestAPI", version="v1.0", description="Tidal Music Proxy")
-
+app = FastAPI(title="HiFi-RestAPI", version="v1.1", description="Tidal Music Proxy (Auto-Region)")
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -29,31 +28,39 @@ async def add_security_headers(request: Request, call_next):
     response.headers["Cross-Origin-Opener-Policy"] = "same-origin"
     response.headers["Cross-Origin-Embedder-Policy"] = "credentialless"     
     return response
+
 load_dotenv()
 
 CLIENT_ID = os.getenv("CLIENT_ID", "zU4XHVVkc2tDPo4t")
 CLIENT_SECRET = os.getenv("CLIENT_SECRET", "VJKhDFqJPqvsPVNBV6ukXTJmwlvbttP7wlMlrc72se4=")
 USER_ID = os.getenv("USER_ID")
-REGION = os.getenv("REGION", "HK") # HK 改成自己账号的所在区域
 TOKEN_FILE = "token.json"
-
 
 async def refresh():
     if not os.path.exists(TOKEN_FILE):
         raise HTTPException(status_code=401, detail="token.json 不存在，请先生成 token.json")
-    with open(TOKEN_FILE, "r") as f:
-        token_data = json.load(f)
+    
+    try:
+        with open(TOKEN_FILE, "r") as f:
+            token_data = json.load(f)
+    except json.JSONDecodeError:
+        raise HTTPException(status_code=401, detail="token.json 格式错误")
+
     access_token = token_data.get("access_token")
+    country_code = token_data.get("country_code", "US")
+
     if not access_token:
         raise HTTPException(status_code=401, detail="token.json 不包含 access_token")
-    return access_token
+    
+    return access_token, country_code
 
 @app.api_route("/module-paged-data/{module_path:path}", methods=["GET"])
 async def get_module_paged_data(module_path: str, offset: int = 0, limit: int = 50):
     try:
         print(f"--- 🌀 [BACKEND] 收到分页请求: {module_path}, Offset: {offset} ---")
-        tidal_token = await refresh()
+        tidal_token, region = await refresh()
         headers = {"authorization": f"Bearer {tidal_token}"}
+        
         async with httpx.AsyncClient(http2=True) as client:
             real_data_path = None
             if module_path.startswith("pages/data/"):
@@ -61,16 +68,18 @@ async def get_module_paged_data(module_path: str, offset: int = 0, limit: int = 
                 print(f"--- ✅ [BACKEND] 检测到直接数据路径: {real_data_path} ---")
             else:
                 print(f"--- ⚠️ [BACKEND] 检测到旧模块路径, 正在执行两步请求... ---")
-                module_url = f"https://api.tidal.com/v1/{module_path}?countryCode={REGION}&locale=en_US&deviceType=BROWSER"
+                module_url = f"https://api.tidal.com/v1/{module_path}?countryCode={region}&locale=en_US&deviceType=BROWSER"
                 module_res = await client.get(module_url, headers=headers)
                 module_res.raise_for_status()
                 module_data = module_res.json()
                 if "rows" in module_data and module_data["rows"] and "modules" in module_data["rows"][0] and module_data["rows"][0]["modules"] and "pagedList" in module_data["rows"][0]["modules"][0]:
                     real_data_path = module_data["rows"][0]["modules"][0]["pagedList"].get("dataApiPath")
+            
             if not real_data_path:
                 print(f"🔴 [BACKEND] 致命错误: 无法找到 real_data_path (路径: {module_path})")
                 raise HTTPException(status_code=404, detail="无法在该模块中找到 dataApiPath")
-            paged_url = f"https://api.tidal.com/v1/{real_data_path}?countryCode={REGION}&locale=en_US&deviceType=BROWSER&offset={offset}&limit={limit}"
+
+            paged_url = f"https://api.tidal.com/v1/{real_data_path}?countryCode={region}&locale=en_US&deviceType=BROWSER&offset={offset}&limit={limit}"
             print(f"--- 🚀 [BACKEND] 正在请求Tidal: {paged_url} ---")
             paged_res = await client.get(paged_url, headers=headers)
             paged_res.raise_for_status()
@@ -86,9 +95,9 @@ async def get_module_paged_data(module_path: str, offset: int = 0, limit: int = 
 @app.api_route("/home", methods=["GET"])
 async def get_home():
     try:
-        tidal_token = await refresh()
+        tidal_token, region = await refresh()
         headers = {"authorization": f"Bearer {tidal_token}"}
-        home_url = f"https://tidal.com/v1/pages/single-module-page/6d515891-9c40-466b-a371-52cdb3d16fee/3/739de1f7-4768-463e-a6b6-e173a03fb96e/2?countryCode={REGION}&locale=en_US&deviceType=BROWSER"
+        home_url = f"https://tidal.com/v1/pages/single-module-page/6d515891-9c40-466b-a371-52cdb3d16fee/3/739de1f7-4768-463e-a6b6-e173a03fb96e/2?countryCode={region}&locale=en_US&deviceType=BROWSER"
         async with httpx.AsyncClient(http2=True) as client:
             res = await client.get(home_url, headers=headers)
             res.raise_for_status()
@@ -99,9 +108,9 @@ async def get_home():
 @app.api_route("/album/{id}/tracks", methods=["GET"])
 async def get_album_tracks(id: int, offset: int = 0, limit: int = 100):
     try:
-        tidal_token = await refresh()
+        tidal_token, region = await refresh()
         headers = {"authorization": f"Bearer {tidal_token}"}
-        items_url = f"https://api.tidal.com/v1/albums/{id}/items?countryCode={REGION}&limit={limit}&offset={offset}"
+        items_url = f"https://api.tidal.com/v1/albums/{id}/items?countryCode={region}&limit={limit}&offset={offset}"
         async with httpx.AsyncClient(http2=True) as client:
             res = await client.get(items_url, headers=headers)
             res.raise_for_status()
@@ -125,13 +134,13 @@ async def get_album_tracks(id: int, offset: int = 0, limit: int = 100):
 @app.api_route("/artist", methods=["GET"])
 async def get_artist(id: int = None, f: Union[int, None] = Query(default=None)):
     try:
-        tidal_token = await refresh()
+        tidal_token, region = await refresh()
         headers = {"authorization": f"Bearer {tidal_token}"}
         async with httpx.AsyncClient(http2=True) as client:
             if f:
-                artist_details_url = f"https://api.tidal.com/v1/artists/{f}?countryCode={REGION}"
-                artist_albums_url = f"https://api.tidal.com/v1/artists/{f}/albums?countryCode={REGION}&limit=100"
-                artist_singles_url = f"https://api.tidal.com/v1/artists/{f}/albums?countryCode={REGION}&filter=EPSANDSINGLES&limit=100"
+                artist_details_url = f"https://api.tidal.com/v1/artists/{f}?countryCode={region}"
+                artist_albums_url = f"https://api.tidal.com/v1/artists/{f}/albums?countryCode={region}&limit=100"
+                artist_singles_url = f"https://api.tidal.com/v1/artists/{f}/albums?countryCode={region}&filter=EPSANDSINGLES&limit=100"
                 tasks = [
                     client.get(artist_details_url, headers=headers),
                     client.get(artist_albums_url, headers=headers),
@@ -147,7 +156,7 @@ async def get_artist(id: int = None, f: Union[int, None] = Query(default=None)):
                     "singles": singles_res.json().get("items", [])
                 }
             elif id:
-                artist_url = f"https://api.tidal.com/v1/artists/{id}?countryCode={REGION}"
+                artist_url = f"https://api.tidal.com/v1/artists/{id}?countryCode={region}"
                 res = await client.get(artist_url, headers=headers)
                 res.raise_for_status()
                 return res.json()
@@ -159,7 +168,7 @@ async def get_artist(id: int = None, f: Union[int, None] = Query(default=None)):
 @app.api_route("/dash", methods=["GET"])
 async def get_hi_res(id: int, quality: str = "HI_RES_LOSSLESS"):
     try:
-        tidal_token = await refresh()
+        tidal_token, region = await refresh()
         track_url = f"https://tidal.com/v1/tracks/{id}/playbackinfo?audioquality={quality}&playbackmode=STREAM&assetpresentation=FULL"
         headers = {"authorization": f"Bearer {tidal_token}"}
         async with httpx.AsyncClient(http2=True) as client:
@@ -175,11 +184,12 @@ async def get_hi_res(id: int, quality: str = "HI_RES_LOSSLESS"):
 async def get_track(id: int, quality: str = "LOSSLESS"):
     try:
         if quality == "HI_RES_LOSSLESS":
-            raise HTTPException(status_code=400, detail="HI_RES_LOSSLESS not supported, use /dash endpoint.")
-        tidal_token = await refresh()
+            raise HTTPException(status_code=400, detail="HI_RES_LOSSLESS not supported, use /dash endpoint.") 
+        tidal_token, region = await refresh()
         headers = {"authorization": f"Bearer {tidal_token}"}
         track_url = f"https://api.tidal.com/v1/tracks/{id}/playbackinfopostpaywall/v4?audioquality={quality}&playbackmode=STREAM&assetpresentation=FULL"
-        info_url = f"https://api.tidal.com/v1/tracks/{id}/?countryCode={REGION}"
+        info_url = f"https://api.tidal.com/v1/tracks/{id}/?countryCode={region}"
+        
         async with httpx.AsyncClient(http2=True) as client:
             track_data_res = await client.get(track_url, headers=headers)
             info_data_res = await client.get(info_url, headers=headers)
@@ -199,9 +209,9 @@ async def get_track(id: int, quality: str = "LOSSLESS"):
 @app.api_route("/lyrics", methods=["GET"])
 async def get_lyrics(id: int):
     try:
-        tidal_token = await refresh()
+        tidal_token, region = await refresh()
         headers = {"authorization": f"Bearer {tidal_token}"}
-        url = f"https://api.tidal.com/v1/tracks/{id}/lyrics?countryCode={REGION}&locale=en_US&deviceType=BROWSER"
+        url = f"https://api.tidal.com/v1/tracks/{id}/lyrics?countryCode={region}&locale=en_US&deviceType=BROWSER"
         async with httpx.AsyncClient(http2=True) as client:
             res = await client.get(url, headers=headers)
             res.raise_for_status()
@@ -212,9 +222,9 @@ async def get_lyrics(id: int):
 @app.api_route("/song", methods=["GET"])
 async def get_song(q: str, quality: str):
     try:
-        tidal_token = await refresh()
+        tidal_token, region = await refresh()
         headers = {"authorization": f"Bearer {tidal_token}"}
-        search_url = f"https://api.tidal.com/v1/search/tracks?countryCode={REGION}&query={q}"
+        search_url = f"https://api.tidal.com/v1/search/tracks?countryCode={region}&query={q}"
         async with httpx.AsyncClient(http2=True) as client:
             search_data_res = await client.get(search_url, headers=headers)
             search_data_res.raise_for_status()
@@ -246,22 +256,21 @@ async def search(
     offset: int = 0
 ):
     try:
-        tidal_token = await refresh()
+        tidal_token, region = await refresh()
         headers = {"authorization": f"Bearer {tidal_token}"}
         async with httpx.AsyncClient(http2=True) as client:
             if s:
-                url = f"https://api.tidal.com/v1/search/tracks?query={s}&limit={limit}&offset={offset}&countryCode={REGION}"
+                url = f"https://api.tidal.com/v1/search/tracks?query={s}&limit={limit}&offset={offset}&countryCode={region}"
             elif a:
-                url = f"https://api.tidal.com/v1/search/top-hits?query={a}&limit={limit}&offset={offset}&types=ARTISTS,TRACKS&countryCode={REGION}"
+                url = f"https://api.tidal.com/v1/search/top-hits?query={a}&limit={limit}&offset={offset}&types=ARTISTS,TRACKS&countryCode={region}"
             elif al:
-                url = f"https://api.tidal.com/v1/search/top-hits?query={al}&limit={limit}&offset={offset}&types=ALBUMS&countryCode={REGION}"
+                url = f"https://api.tidal.com/v1/search/top-hits?query={al}&limit={limit}&offset={offset}&types=ALBUMS&countryCode={region}"
             elif v:
-                url = f"https://api.tidal.com/v1/search/videos?query={v}&limit={limit}&offset={offset}&countryCode={REGION}"
+                url = f"https://api.tidal.com/v1/search/videos?query={v}&limit={limit}&offset={offset}&countryCode={region}"
             elif p:
-                url = f"https://api.tidal.com/v1/search/playlists?query={p}&limit={limit}&offset={offset}&countryCode={REGION}"
+                url = f"https://api.tidal.com/v1/search/playlists?query={p}&limit={limit}&offset={offset}&countryCode={region}"
             else:
-                raise HTTPException(status_code=400, detail="A search query parameter is required.")
-            
+                raise HTTPException(status_code=400, detail="A search query parameter is required.")      
             res = await client.get(url, headers=headers)
             res.raise_for_status()
             return res.json()
@@ -271,10 +280,10 @@ async def search(
 @app.api_route("/playlist", methods=["GET"])
 async def get_playlist(id: str):
     try:
-        tidal_token = await refresh()
+        tidal_token, region = await refresh()
         headers = {"authorization": f"Bearer {tidal_token}"}
-        playlist_url = f"https://api.tidal.com/v1/playlists/{id}?countryCode={REGION}"
-        items_url = f"https://api.tidal.com/v1/playlists/{id}/items?countryCode={REGION}&limit=100"
+        playlist_url = f"https://api.tidal.com/v1/playlists/{id}?countryCode={region}"
+        items_url = f"https://api.tidal.com/v1/playlists/{id}/items?countryCode={region}&limit=100"
         async with httpx.AsyncClient(http2=True) as client:
             playlist_data_res = await client.get(playlist_url, headers=headers)
             playlist_items_res = await client.get(items_url, headers=headers)
@@ -287,11 +296,11 @@ async def get_playlist(id: str):
 @app.api_route("/cover", methods=["GET"])
 async def get_cover(id: Union[int, None] = None, q: Union[str, None] = None):
     try:
-        tidal_token = await refresh()
+        tidal_token, region = await refresh()
         headers = {"authorization": f"Bearer {tidal_token}"}
         async with httpx.AsyncClient(http2=True) as client:
             if id:
-                track_url = f"https://api.tidal.com/v1/tracks/{id}/?countryCode={REGION}"
+                track_url = f"https://api.tidal.com/v1/tracks/{id}/?countryCode={region}"
                 res = await client.get(track_url, headers=headers)
                 res.raise_for_status()
                 track = res.json()
@@ -304,7 +313,7 @@ async def get_cover(id: Union[int, None] = None, q: Union[str, None] = None):
                 }]
                 return JSONResponse(content=json_data)
             elif q:
-                search_url = f"https://api.tidal.com/v1/search/tracks?countryCode={REGION}&query={q}"
+                search_url = f"https://api.tidal.com/v1/search/tracks?countryCode={region}&query={q}"
                 res = await client.get(search_url, headers=headers)
                 res.raise_for_status()
                 tracks = res.json().get("items", [])[:10]
@@ -327,13 +336,15 @@ async def get_cover(id: Union[int, None] = None, q: Union[str, None] = None):
 async def get_item_details(item_type: str, item_id: str):
     if item_type not in ["album", "track"]:
         raise HTTPException(status_code=400, detail="Invalid item type.")
-    url_map = {
-        "album": f"https://api.tidal.com/v1/albums/{item_id}?countryCode={REGION}",
-        "track": f"https://api.tidal.com/v1/tracks/{item_id}?countryCode={REGION}",
-    }
     try:
-        tidal_token = await refresh()
+        tidal_token, region = await refresh()
         headers = {"authorization": f"Bearer {tidal_token}"}
+        
+        url_map = {
+            "album": f"https://api.tidal.com/v1/albums/{item_id}?countryCode={region}",
+            "track": f"https://api.tidal.com/v1/tracks/{item_id}?countryCode={region}",
+        }
+        
         url = url_map[item_type]
         async with httpx.AsyncClient(http2=True) as client:
             res = await client.get(url, headers=headers)
@@ -351,7 +362,6 @@ async def read_index():
     return FileResponse('static/index.html')
 
 app.mount("/", StaticFiles(directory="static"), name="static")
-
 
 if __name__ == "__main__":
     if not os.path.exists(TOKEN_FILE):
