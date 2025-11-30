@@ -34,7 +34,7 @@ load_dotenv()
 CLIENT_ID = os.getenv("CLIENT_ID", "zU4XHVVkc2tDPo4t")
 CLIENT_SECRET = os.getenv("CLIENT_SECRET", "VJKhDFqJPqvsPVNBV6ukXTJmwlvbttP7wlMlrc72se4=")
 USER_ID = os.getenv("USER_ID")
-REGION = os.getenv("REGION", "NG")
+REGION = os.getenv("REGION", "HK") # HK 改成自己账号的所在区域
 TOKEN_FILE = "token.json"
 
 
