@@ -19,11 +19,11 @@ TidalDL-Web 是一个基于 Python (FastAPI) 后端和原生 JavaScript 前端�
 ```text
 TidalDL-Web/
 ├── main.py              # 后端入口文件
-├── login.py             # 登录授权脚本
+├── login.py             # 登录 Tidal 获取 Token 脚本
 ├── token.json           # (运行 login.py 授权后自动生成)
 ├── requirements.txt     # 依赖列表
 └── static/              # 前端静态资源文件夹
-    ├── index.html       # Web主页
+    ├── index.html       # Web 主页
     ├── css/
     │   └── style.css
     └── js/
@@ -43,6 +43,9 @@ TidalDL-Web/
 pip install -r requirements.txt
 ```
 ## 🔑 登录Tidal并授权
+* 打开 login.py 输入 token.json 的绝对路径，路径应在 main.py 同目录下比如：
+* SESSION_FILE = Path("/root/Tidal-Web-Downloader-main/token.json")
+* 然后运行：
 ```text
 python login.py
 ```
