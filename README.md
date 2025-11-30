@@ -17,7 +17,7 @@ TidalDL-Web 是一个基于 Python (FastAPI) 后端和原生 JavaScript 前端�
 
 在使用前，请确保你的文件目录结构如下：
 ```text
-TidalDL-Web/
+TidalDL-Web-Downloader/
 ├── main.py              # 后端入口文件
 ├── login.py             # 登录 Tidal 获取 Token 脚本
 ├── token.json           # (运行 login.py 授权后自动生成)
@@ -50,6 +50,7 @@ pip install -r requirements.txt
 python login.py
 ```
 ## ▶️ 运行项目
+* 默认端口 8050
 ```text
 python main.py
 ```
