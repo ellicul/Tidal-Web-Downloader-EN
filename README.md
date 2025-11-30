@@ -46,7 +46,6 @@ pip install -r requirements.txt
 python3 login.py
 ```
 ## ▶️ 运行项目
-* 打开 main.py 找到 REGION = os.getenv("REGION", "HK") 把 HK 改成自己账号的所在区域
 * 默认端口 8050
 ```text
 python3 main.py
