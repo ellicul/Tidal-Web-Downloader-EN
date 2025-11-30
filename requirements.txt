@@ -1,5 +1,6 @@
 fastapi
 uvicorn
+websockets
 httpx[http2]
 python-dotenv
 tidalapi==0.8.8
