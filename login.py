@@ -6,7 +6,7 @@ import time
 import sys
 
 # 输入 token.json 的绝对路径，应在 main.py 同目录下
-SESSION_FILE = Path("/Path/token.json")
+SESSION_FILE = Path("./token.json")
 
 def save_session(session):
     data = {
