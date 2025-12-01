@@ -6,7 +6,7 @@ Tidal-Web-Downloader 是一个基于 Python (FastAPI) 后端和原生 JavaScript
 > This project is for educational and technical research purposes only. Please support official music services.
 
 ## ✨ 功能特性
-* **文件下载**：支持专辑或者单曲下载。
+* **文件下载**：支持专辑或者单曲下载（Hires/Atmos 需对应的 Token 支持）。
 * **元数据写入**：写入封面、歌手、专辑、歌词、ISRC 等 ID3 标签。
 * **Web 播放器**：内置 HTML5 播放器，支持在线试听。
 * **灵活搜索**：支持按歌曲、专辑、歌手、搜索。
