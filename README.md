@@ -42,6 +42,7 @@ TidalDL-Web-Downloader/
 pip install -r requirements.txt
 ```
 ## 🔑 登录 Tidal 授权并获取 Token
+* 可自行设置后台运行自动刷新 Token
 ```text
 python3 login.py
 ```
