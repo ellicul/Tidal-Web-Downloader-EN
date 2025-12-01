@@ -1,16 +1,16 @@
 # TidalDL-Web-Downloader & Player
-Tidal-Web-Downloader 是一个基于 Python (FastAPI) 后端和原生 JavaScript 前端的 Web 应用程序。它允许用户搜索 TIDAL 曲库、在线播放以及下载无损音乐。
+Tidal-Web-Downloader 是一个基于 Python ( FastAPI ) 后端和原生 JavaScript 前端的 Web 应用程序。它允许用户搜索 Tidal 、在线播放以及下载无损音乐。
 
 > **⚠️ 免责声明 / Disclaimer**
 > 本项目仅供学习和技术研究使用。请支持正版音乐，下载的内容请在 24 小时内删除。严禁将本项目用于任何商业用途。
 > This project is for educational and technical research purposes only. Please support official music services.
 
 ## ✨ 功能特性
-* **文件下载**：支持专辑或者单曲下载（Hires/Atmos 需对应的 Token 支持）。
+* **文件下载**：支持专辑或单曲下载（ Hi-Res / Atmos 需对应的 Token 支持 ）。
 * **元数据写入**：写入封面、歌手、专辑、歌词、ISRC 等 ID3 标签。
-* **Web 播放器**：内置 HTML5 播放器，支持在线试听。
-* **灵活搜索**：支持按歌曲、专辑、歌手、搜索。
-* **跨平台**：基于 Web，支持通过浏览器（需支持 File System Access API，如 Chrome/Edge）直接保存文件到本地。
+* **Web 播放器**：内置 HTML5 播放器，支持在线播放音/视频。
+* **灵活搜索**：支持按专辑、单曲、视频、歌手、搜索。
+* **跨平台**：基于 Web，支持通过浏览器（需支持 File System Access API，如：Chrome / Edge ）直接保存文件到本地。
 * **本地缓存**：支持断点续传和磁盘缓存。
 
 ## 🛠️ 目录结构
