@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -16,13 +16,13 @@
         </svg>
     </a>
 
-    <button id="settings-btn" class="corner-btn" title="设置">
+    <button id="settings-btn" class="corner-btn" title="Settings">
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
           <path d="M19.14 12.94c.04-.31.06-.63.06-.94s-.02-.63-.06-.94l2.03-1.58a.5.5 0 0 0 .12-.64l-1.93-3.32a.5.5 0 0 0-.61-.22l-2.39.96a7.007 7.007 0 0 0-1.63-.94l-.36-2.54A.5.5 0 0 0 14.3 2h-4.6a.5.5 0 0 0-.49.42l-.36 2.54a7.007 7.007 0 0 0-1.63.94l-2.39-.96a.5.5 0 0 0-.61.22L2.3 8.84a.5.5 0 0 0 .12.64l2.03 1.58c-.04.31-.06.63-.06.94s.02.63.06.94l-2.03 1.58a.5.5 0 0 0-.12.64l1.93 3.32a.5.5 0 0 0 .61.22l2.39-.96c.48.39 1.03.72 1.63.94l.36 2.54c.04.24.25.42.49.42h4.6c.24 0 .45-.18.49-.42l.36-2.54c.6-.22 1.15-.55 1.63-.94l2.39.96a.5.5 0 0 0 .61-.22l1.93-3.32a.5.5 0 0 0-.12-.64l-2.03-1.58zM12 15.5a3.5 3.5 0 1 1 0-7 3.5 3.5 0 0 1 0 7z"/>
         </svg>
     </button>
 
-    <button id="login-btn" class="corner-btn" title="点击运行 login.py">
+    <button id="login-btn" class="corner-btn" title="Click to run login.py">
         --
     </button>
 
@@ -31,15 +31,15 @@
             <h1>TidalDL</h1>
             <div class="search-container">
                 <div class="search-bar">
-                    <input type="text" id="searchInput" placeholder="输入关键词或TIDAL链接...">
-                    <button id="searchButton">搜索</button>
-                    <button id="downloadUrlButton">下载</button>
+                    <input type="text" id="searchInput" placeholder="Enter keywords or a Tidal link...">
+                    <button id="searchButton">Search</button>
+                    <button id="downloadUrlButton">Download</button>
                 </div>
                 <div class="search-tabs">
-                    <button class="tab-btn active" data-search-type="al">专辑</button>
-                    <button class="tab-btn" data-search-type="s">单曲</button>
-                    <button class="tab-btn" data-search-type="a">歌手</button>
-                    <button class="tab-btn" data-search-type="v">视频</button>
+                    <button class="tab-btn active" data-search-type="al">Album</button>
+                    <button class="tab-btn" data-search-type="s">Single</button>
+                    <button class="tab-btn" data-search-type="a">Artist</button>
+                    <button class="tab-btn" data-search-type="v">Video</button>
                 </div>
             </div>
         </header>
@@ -59,9 +59,9 @@
             <div class="modal-header">
                 <div id="modal-title-container" class="modal-title-container">
                     <img id="modal-album-art" src="" alt="Album Art">
-                    <h3 id="modal-title">曲目列表</h3>
+                    <h3 id="modal-title">Tracklist</h3>
                 </div>
-                <button id="modal-download-album-btn" class="action-btn" title="下载整张专辑">
+                <button id="modal-download-album-btn" class="action-btn" title="Download Album">
                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"></path></svg>
                 </button>
             </div>
@@ -73,7 +73,7 @@
         <div class="modal-content video-modal-content">
             <span class="modal-close-btn">&times;</span>
             <div class="modal-header">
-                <h3 id="video-modal-title">视频播放</h3>
+                <h3 id="video-modal-title">Video</h3>
             </div>
             <div id="video-modal-body">
                 <video id="player-video-element" controls style="width: 100%; height: auto; background-color: #000;"></video>
@@ -83,12 +83,12 @@
     <div id="settings-modal" class="modal">
         <div class="modal-content settings-modal-content">
             <span class="modal-close-btn">&times;</span>
-            <h3>设置</h3>
+            <h3>Settings</h3>
             <div id="settings-body" class="settings-body">
                 <div class="setting-item">
                     <div class="setting-row">
                         <div class="setting-label">
-                            <label for="setting-download-hires">启用 Hi-Res 下载</label>
+                            <label for="setting-download-hires">Enable Hi-Res Downloads</label>
                             <button class="help-btn" data-help-id="hires-help">?</button>
                         </div>
                         <label class="toggle-switch">
@@ -97,27 +97,27 @@
                         </label>
                     </div>
                     <div id="hires-help" class="help-text">
-                        <p>勾选后，当歌曲有提供 Hi-Res 音质时，将优先下载 Hi-Res，否则，将自动回退到 Lossless</p>
-                        <p><strong>注意:</strong> Hi-Res 体积通常远大于 Lossless</p>
+                        <p>When checked, the app will prioritize downloading Hi-Res audio when available. Otherwise, it will automatically fall back to Lossless.</p>
+                        <p><strong>Note:</strong> Hi-Res files are typically much larger than Lossless files.</p>
                     </div>
                 </div>
 
                 <div class="setting-item" id="setting-hires-threads-container">
                     <div class="setting-label">
-                        <label for="setting-hires-threads">Hi-Res 下载线程数</label>
+                        <label for="setting-hires-threads">Hi-Res Download Thread Count</label>
                         <button class="help-btn" data-help-id="hires-threads-help">?</button>
                     </div>
                     <input type="number" id="setting-hires-threads" class="setting-input" min="1" max="20">
                     <div id="hires-threads-help" class="help-text">
-                        <p>设置下载 Hi-Res 音频分片时的并发连接数。较高的值可能会加快下载速度，但也可能导致网络不稳定或被服务器限制</p>
-                        <p>建议范围：3-10，默认值：5</p>
+                        <p>Set the number of concurrent connections when downloading Hi-Res audio chunks. Higher values may accelerate download speeds but could also cause network instability or trigger server throttling.</p>
+                        <p>Recommended range: 3–10, default value: 5</p>
                     </div>
                 </div>
                 
                 <div class="setting-item">
                     <div class="setting-row">
                         <div class="setting-label">
-                            <label for="setting-disk-cache">启用硬盘缓存</label>
+                            <label for="setting-disk-cache">Enable Caching</label>
                             <button class="help-btn" data-help-id="disk-cache-help">?</button>
                         </div>
                         <label class="toggle-switch">
@@ -126,9 +126,9 @@
                         </label>
                     </div>
                     <div id="disk-cache-help" class="help-text">
-                        <p><strong>推荐开启</strong></p>
-                        <p>开启后，所有下载的临时文件将被保存在最终下载目录的一个`tmp`子文件夹内，实现断点续传，即使关闭应用或下载失败，下次下载同一曲目时也会从中断处继续</p>
-                        <p>关闭后，将使用系统临时文件夹，应用关闭后文件会丢失</p>
+                        <p><strong>Recommended to enable</strong></p>
+                        <p>Once enabled, all downloaded temporary files will be stored in a `tmp` subfolder within the final download directory, enabling resume-enabled downloads. Even if the app is closed or a download fails, subsequent downloads of the same track will resume from where they left off.</p>
+                        <p>After closing, the system temporary folder will be used. Files will be lost after the application closes.</p>
                     </div>
                 </div>
 
@@ -136,49 +136,49 @@
 
                 <div class="setting-item">
                     <div class="setting-label">
-                        <label for="setting-folder-format">文件夹格式</label>
+                        <label for="setting-folder-format">Folder Format</label>
                         <button class="help-btn" data-help-id="folder-format-help">?</button>
                     </div>
                     <input type="text" id="setting-folder-format" class="setting-input">
                     <div id="folder-format-help" class="help-text">
-                        <p>此设置仅在使用“选择文件夹”下载整张专辑时生效。可用占位符：</p>
+                        <p>This setting only applies when downloading entire albums using the “Select Folder” feature. Available placeholders:</p>
                         <ul>
-                            <li><code>{artist}</code> - 歌手名</li>
-                            <li><code>{album}</code> - 专辑名</li>
-                            <li><code>{year}</code> - 发行年份</li>
+                            <li><code>{artist}</code> - Artist</li>
+                            <li><code>{album}</code> - Album</li>
+                            <li><code>{year}</code> - Year</li>
                         </ul>
-                        <p>示例：<code>{artist}/{album} ({year})</code></p>
+                        <p>Example: <code>{artist}/{album} ({year})</code></p>
                     </div>
                 </div>
 
                 <div class="setting-item">
                     <div class="setting-label">
-                        <label for="setting-filename-format">文件名格式</label>
+                        <label for="setting-filename-format">File Name Format</label>
                         <button class="help-btn" data-help-id="filename-format-help">?</button>
                     </div>
                     <input type="text" id="setting-filename-format" class="setting-input">
                     <div id="filename-format-help" class="help-text">
-                        <p>可用占位符：</p>
+                        <p>Available placeholders:</p>
                         <ul>
-                            <li><code>{trackNumber}</code> - 音轨序号 (会自动补零)</li>
-                            <li><code>{title}</code> - 曲目名</li>
-                            <li><code>{artist}</code> - 歌手名</li>
-                            <li><code>{album}</code> - 专辑名</li>
+                            <li><code>{trackNumber}</code> - Track Number (automatically padded with leading zeros)</li>
+                            <li><code>{title}</code> - Title</li>
+                            <li><code>{artist}</code> - Artist</li>
+                            <li><code>{album}</code> - Album</li>
                         </ul>
-                        <p>示例：<code>{trackNumber}. {title}</code></p>
+                        <p>Example: <code>{trackNumber}. {title}</code></p>
                     </div>
                 </div>
 
                 <div class="setting-item">
                     <div class="setting-label">
-                        <label>元数据字段</label>
+                        <label>Metadata fields</label>
                     </div>
                     <div id="metadata-settings-container" class="metadata-checkboxes">
                     </div>
                 </div>
             </div>
             <div class="modal-footer">
-                <button id="restore-defaults-btn" class="action-btn">恢复默认</button>
+                <button id="restore-defaults-btn" class="action-btn">Restore default settings</button>
             </div>
         </div>
     </div>
@@ -186,7 +186,7 @@
     <div id="download-queue-modal" class="modal">
         <div class="modal-content download-queue-modal-content">
             <span class="modal-close-btn">&times;</span>
-            <h3>下载队列</h3>
+            <h3>Download Queue</h3>
             <div id="download-queue-body" class="download-queue-body">
                 </div>
         </div>
@@ -203,22 +203,22 @@
     <div id="global-player" class="global-player">
         <img id="player-album-art" src="" alt="Album Art">
         <div class="player-controls">
-            <button id="player-prev-btn" class="player-btn" title="上一首" disabled>
+            <button id="player-prev-btn" class="player-btn" title="Previous" disabled>
                 <svg viewBox="0 0 24 24"><g transform="scale(-1 1) translate(-24, 0)"><path d="M6 6h2v12H6zm3.5 6l8.5 6V6l-8.5 6z"></path></g></svg>
             </button>
-            <button id="player-play-pause-btn" class="player-btn large" title="播放" disabled>
+            <button id="player-play-pause-btn" class="player-btn large" title="Play" disabled>
                 <svg class="play-icon" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"></path></svg>
                 <svg class="pause-icon" viewBox="0 0 24 24"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"></path></svg>
                 <div class="loader"></div>
             </button>
-            <button id="player-next-btn" class="player-btn" title="下一首" disabled>
+            <button id="player-next-btn" class="player-btn" title="Next" disabled>
                 <svg viewBox="0 0 24 24"><path d="M6 18l8.5-6L6 6v12zM16 6v12h2V6h-2z"></path></svg>
             </button>
-            <button id="player-stop-btn" class="player-btn" title="停止">
+            <button id="player-stop-btn" class="player-btn" title="Stop">
                 <svg viewBox="0 0 24 24"><path d="M6 6h12v12H6z"></path></svg>
             </button>
             <div class="volume-container">
-                <button id="player-volume-btn" class="player-btn" title="音量">
+                <button id="player-volume-btn" class="player-btn" title="Volume">
                     <svg viewBox="0 0 24 24"><path d="M3 9v6h4l5 5V4L7 9H3z"></path></svg>
                 </button>
                 <div class="volume-popup">
@@ -228,7 +228,7 @@
         </div>
     </div>
 
-    <button id="back-to-top" class="back-to-top-btn" title="返回顶部">
+    <button id="back-to-top" class="back-to-top-btn" title="Back to top">
         <svg viewBox="0 0 24 24"><path d="M7.41 15.41L12 10.83l4.59 4.58L18 14l-6-6-6 6z"></path></svg>
     </button>
     
@@ -241,7 +241,7 @@
             <div id="download-album-title"></div>
             <div id="download-track-status"></div>
         </div>
-        <button id="download-cancel-btn" class="download-cancel-btn" title="取消所有任务">
+        <button id="download-cancel-btn" class="download-cancel-btn" title="Cancel all tasks">
              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="20" height="20">
                 <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
             </svg>
